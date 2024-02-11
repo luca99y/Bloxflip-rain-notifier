@@ -1,11 +1,11 @@
 import cloudscraper, time
 from discord_webhook import DiscordWebhook
-import playsound
+from playsound import playsound
 
 # -------------- CONFIG --------------
 
 # --webhook stuff--
-# who doesnt understand this should commit suicide
+# if it should send webhook message or not
 webhook_state = False
 # url of webhook
 webhook = ""
@@ -13,36 +13,16 @@ webhook = ""
 user_to_ping = "<@1234567890>"
 
 # -- notifs
-# who doesnt understand this should commit suicide
+# If it should play sound or not
 shoud_play_sound = True
 # path to sound
 sound_to_play = "Notification.wav"
-
 # --general settings
-# who doesnt understand this should commit suicide
+# The minimum amount of robux to be notified
 min_amount_of_robux = 500
 # how many seconds to wait between checks
 refresh_rate = 30
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# check for webhook
-if webhook_state:
-    # creating webhook and adding content
-    webhook = DiscordWebhook(url=webhook, content=f"{user_to_ping} new giveaway")
 
 while True:
     try:
@@ -53,20 +33,22 @@ while True:
         check = r['rain']
         # checks if it gives enough bobux and if its active
         if check['active'] and check['prize'] >= min_amount_of_robux:
+            # gets rain duration information
+            getduration = check['duration']
+            umduration = getduration / 60000
+            duration = round(umduration)
+            convert = (getduration / (1000 * 60)) % 60
+            waiting = (convert * 60 + 10)
+            # time when the rain started
+            date = time.strftime("%d/%m/%Y %I:%M:%S %p", time.localtime(int(time.time())))
             # print to console about the giveaway
-            print("New rain ", check['prize'], " Robux")
+            print(f"New rain {date}\n{check['prize']} Robux\nExpires in {duration} minutes\n")
             # play notification sound
             if shoud_play_sound == True:
                 playsound(sound_to_play)
             # send to webhook
             if webhook_state:
-                webhook.execute()
-            # gets rain duration information
-            getduration = check['duration']
-            umduration = getduration/60000
-            duration = round(umduration)
-            convert = (getduration/(1000*60))%60
-            waiting = (convert*60+10)
+                DiscordWebhook(url=webhook, content=f"New rain {date}\n{check['prize']} Robux\nExpires in {duration} minutes\n{user_to_ping}").execute()
             # waits until the rain ends before checking for rain again
             time.sleep(waiting)
         else:
