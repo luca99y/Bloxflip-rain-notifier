@@ -1,3 +1,3 @@
-requests~=2.31.0
 cloudscraper~=1.2.71
 playsound~=1.3.0
+discord_webhook
